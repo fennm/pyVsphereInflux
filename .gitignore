@@ -1,5 +1,8 @@
+*~
+*.swp
+
 *.pyc
-*.py0
+*.pyo
 
 /ve
 
