@@ -1,8 +1,12 @@
+# editor hidden files
 *~
 *.swp
 
+# python build files
 *.pyc
 *.pyo
+/build
+/dist
 
 /ve
 
