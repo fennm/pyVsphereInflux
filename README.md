@@ -3,7 +3,9 @@ A library and supporting script for pulling data from vSphere and inserting it i
 
 Example usage:
 
-    vsphere-influxdb-import.py --vcenter myvcenter --vs-username Administrator --vs-password password --influx-dsn influxdb://root:root@localhost:8086/vms
+    vsphere-influxdb-import.py --vcenter myvcenter --vs-username Administrator \
+                               --vs-password password \
+                               --influx-dsn influxdb://root:root@localhost:8086/vms
 
     $ vsphere-influxdb-import.py -h
     usage: vsphere-influxdb-import.py [-h] --vcenter VCENTER
