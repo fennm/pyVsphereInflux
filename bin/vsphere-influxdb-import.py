@@ -11,6 +11,7 @@ from pyVim import connect
 from pyVmomi import vim
 from pyVsphereInflux.vsphere import build_vmresultset
 from pyVsphereInflux.influx import write_results
+from pyVsphereInflux.tools.regex import convert_to_alnum
 
 influx_dsn_default="influxdb://root:root@localhost:8086/database"
 vm_tags = ['name']
@@ -66,7 +67,9 @@ def main():
             print "Unable to connect to %s" % vcenter
             continue
 
-        results = build_vmresultset(service_instance, vm_tags, vm_fields)
+        meas = "vmprop.%s" % (convert_to_alnum(vcenter))
+        results = build_vmresultset(service_instance, vm_tags, vm_fields,
+                                    measurement=meas)
         
         for ts in results:
             ts.tags['vcenter'] = vcenter

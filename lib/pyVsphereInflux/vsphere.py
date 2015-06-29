@@ -3,6 +3,7 @@
 from pyVmomi import vim
 from pyVsphereInflux import InfluxResult
 from pyVsphereInflux.tools import pchelper
+from pyVsphereInflux.tools.regex import convert_to_alnum
 
 def build_vmresultset(service_instance, tags, fields, measurement='vmprop'):
     """Build a list of InfluxResult objects
@@ -25,8 +26,9 @@ def build_vmresultset(service_instance, tags, fields, measurement='vmprop'):
         else: 
             continue
 
+        meas = "%s.%s" % (measurement, convert_to_alnum(datacenter.name))
         dc_children = get_vms(service_instance, datacenter.vmFolder, 
-                              "", tags, fields, measurement)
+                              "", tags, fields, meas)
 
         for dc_child in dc_children:
             dc_child.tags['datacenter'] = datacenter.name
@@ -64,9 +66,11 @@ def get_vms(service_instance, folder, parent_path, tags, fields, measurement):
                                           path_set=['name'],
                                           include_mors=True)
     for child_folder in folders:
+        meas = "%s.%s" % (measurement, 
+                          convert_to_alnum(child_folder['obj'].name))
         child_vms = get_vms(service_instance, child_folder['obj'], 
                             "%s/%s" % (parent_path, child_folder['obj'].name),
-                             tags, fields, measurement)
+                             tags, fields, meas)
         res.extend(child_vms)
                                      
 
@@ -85,7 +89,8 @@ def get_vms(service_instance, folder, parent_path, tags, fields, measurement):
 
     # put each child into res
     for vm in vms:
-        ts = InfluxResult(measurement)
+        meas = "%s.%s" % (measurement, convert_to_alnum(vm['name']))
+        ts = InfluxResult(meas)
         for tag in tags:
             ts.tags[tag] = vm[tag]
         for field in fields:
