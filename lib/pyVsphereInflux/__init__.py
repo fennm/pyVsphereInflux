@@ -44,7 +44,7 @@ class InfluxResult08(InfluxResult):
             ret['columns'].append(key)
 
         for key in self.tags:
-            ret['points'][0].append(self.fields[key])
+            ret['points'][0].append(self.tags[key])
             ret['columns'].append(key)
 
         if self.timestamp:
