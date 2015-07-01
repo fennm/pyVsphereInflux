@@ -7,7 +7,7 @@
 *.pyo
 /build
 /dist
-/*egg-info
+*egg-info
 
 /ve
 
