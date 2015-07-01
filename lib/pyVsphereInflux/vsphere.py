@@ -1,7 +1,7 @@
 """Tools for connecting to vsphere and collecting data"""
 
 from pyVmomi import vim
-from pyVsphereInflux import InfluxResult
+from pyVsphereInflux import InfluxResult08
 from pyVsphereInflux.tools import pchelper
 from pyVsphereInflux.tools.regex import convert_to_alnum
 
@@ -90,7 +90,7 @@ def get_vms(service_instance, folder, parent_path, tags, fields, measurement):
     # put each child into res
     for vm in vms:
         meas = "%s.%s" % (measurement, convert_to_alnum(vm['name']))
-        ts = InfluxResult(meas)
+        ts = InfluxResult08(meas)
         for tag in tags:
             ts.tags[tag] = vm[tag]
         for field in fields:

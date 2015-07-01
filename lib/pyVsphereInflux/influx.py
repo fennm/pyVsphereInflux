@@ -1,4 +1,3 @@
-from pyVsphereInflux import InfluxResult
 from influxdb.influxdb08 import InfluxDBClient
 
 def write_results(dsn, results):
