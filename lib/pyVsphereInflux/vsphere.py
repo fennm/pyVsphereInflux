@@ -89,6 +89,7 @@ def get_vms(service_instance, folder, parent_path, tags, fields, measurement):
 
     # put each child into res
     for vm in vms:
+        missing_data = False
         meas = "%s.%s" % (measurement, convert_to_alnum(vm['name']))
         ts = InfluxResult08(meas)
         for tag in tags:
@@ -96,13 +97,17 @@ def get_vms(service_instance, folder, parent_path, tags, fields, measurement):
                 ts.tags[tag] = vm[tag]
             except KeyError as e:
                 print "Could not process %s for vm %s" % (tag, vm['name'])
+                missing_data = True
         for field in fields:
             try:
                 ts.fields[field] = vm[field]
             except KeyError as e:
                 print "Could not process %s for vm %s" % (field, vm['name'])
+                missing_data = True
         ts.tags['folderPath'] = parent_path
-        res.append(ts)
+
+        if not missing_data:
+            res.append(ts)
 
     return res 
 
