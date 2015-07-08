@@ -73,7 +73,10 @@ def main():
         
         for ts in results:
             ts.tags['vcenter'] = vcenter
-            ts.tags['topLevelFolder'] = ts.tags['folderPath'].split('/')[1]
+            if len(ts.tags['folderPath'].split('/')) >= 2:
+                ts.tags['topLevelFolder'] = ts.tags['folderPath'].split('/')[1]
+            else:
+                ts.tags['topLevelFolder'] = "None"
         
         if args.debug:
             print "Results of vSphere query:"
