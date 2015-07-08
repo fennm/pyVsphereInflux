@@ -86,8 +86,10 @@ def build_xiocluster(xms, tags, fields, measurement='xioprop', args=None):
                 print "Could not process %s for data %s" % (field, data['name'])
                 missing_data = True
 
-            # try to convert to bytes
-            if data[field].endswith(hr.SYMBOLS):
+            # try to convert to numbers
+            if data[field].isdigit():
+                ts.fields[field] = int(data[field])
+            elif data[field].endswith(hr.SYMBOLS):
                 ts.fields[field] = hr.human2bytes(data[field])
 
         ts.tags['xms'] = xms
