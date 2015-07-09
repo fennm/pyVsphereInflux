@@ -48,8 +48,8 @@ class InfluxResult08(InfluxResult):
             ret['columns'].append(key)
 
         if self.timestamp:
-            ret['points'][0].insert(0, "time")
-            ret['columns'].insert(0, self.timestamp)
+            ret['points'][0].insert(0, self.timestamp)
+            ret['columns'].insert(0, "time")
 
         return ret
 
