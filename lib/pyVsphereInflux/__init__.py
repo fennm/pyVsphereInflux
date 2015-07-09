@@ -27,6 +27,28 @@ class InfluxResult(object):
         return ret
 
 class InfluxResult08(InfluxResult):
+    @staticmethod
+    def from_query(query_res):
+        """Create InfluxResult08 objects from the return value of
+           InfluxDBClient.query().  Since search result can have multiple
+           points, returns a list of InfluxResult08 objects"""
+        ret = []
+        for series in query_res:
+            for row in series['points']:
+                ts = InfluxResult08(series['name'])
+
+                for i in range(len(series['columns'])):
+                    if series['columns'][i] == 'time':
+                        ts.timestamp = row[i]
+                    elif series['columns'][i] == 'sequence_number':
+                        continue
+                    else:
+                        ts.fields[series['columns'][i]] = row[i]
+
+                ret.append(ts)
+
+        return ret
+
 
     def to_dict(self):
         """Convert to a dictionary as expected by the influxdb 0.8 module"""
