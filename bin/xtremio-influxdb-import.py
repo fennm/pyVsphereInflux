@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# collect metrics from vSphere and import into InfluxDB
+# collect metrics from XtremIO and import into InfluxDB
 import sys
 import argparse
 
@@ -17,7 +17,7 @@ xio_fields = ['Num-of-Vols',
              'UD-SSD-Space-In-Use']
 def main():
     # take some input 
-    parser = argparse.ArgumentParser(description="collect metrics from vSphere and import into InfluxDB")
+    parser = argparse.ArgumentParser(description="collect metrics from XtremIO and import into InfluxDB")
     parser.add_argument('--xms', required=True, action='append', 
                         help="XtremIO XMS to connect to")
     parser.add_argument('--xmsadmin-username', default="xmsadmin", 
