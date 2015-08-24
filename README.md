@@ -29,3 +29,9 @@ Example usage:
 			    influxdb://root:root@localhost:8086/database
       --debug, -d           enable debugging
 
+
+## Developing
+    $ virtualenv ve
+    $ . ve/bin/activate
+    $ pip install -r requirements.txt
+    $ python setup.py develop
