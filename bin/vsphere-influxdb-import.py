@@ -14,7 +14,7 @@ from pyVsphereInflux.vsphere import build_vmresultset
 from pyVsphereInflux.influx import write_results
 from pyVsphereInflux.tools.regex import convert_to_alnum
 
-influx_dsn_default="influxdb://root:root@localhost:8086/database"
+influx_dsn_default = "influxdb://root:root@localhost:8086/database"
 vm_tags = ['name']
 vm_fields = ['config.hardware.numCPU',
              'config.hardware.memoryMB',

@@ -8,7 +8,7 @@ from pyVsphereInflux.vnx import build_vnx
 from pyVsphereInflux.influx import write_results
 from pyVsphereInflux.tools.regex import convert_to_alnum
 
-influx_dsn_default="influxdb://root:root@localhost:8086/database"
+influx_dsn_default = "influxdb://root:root@localhost:8086/database"
 
 vnx_tags = ['Pool_Name',
             'Pool_ID']

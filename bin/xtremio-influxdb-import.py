@@ -7,7 +7,7 @@ from pyVsphereInflux.xio import build_xiocluster
 from pyVsphereInflux.influx import write_results
 from pyVsphereInflux.tools.regex import convert_to_alnum
 
-influx_dsn_default="influxdb://root:root@localhost:8086/database"
+influx_dsn_default = "influxdb://root:root@localhost:8086/database"
 
 xio_tags = ['Cluster-Name']
 xio_fields = ['Num-of-Vols',

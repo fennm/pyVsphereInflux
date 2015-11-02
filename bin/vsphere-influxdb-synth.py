@@ -8,7 +8,7 @@ from pyVsphereInflux import InfluxResult08
 from pyVsphereInflux.influx import write_results, find_first_point
 from pyVsphereInflux.tools.regex import convert_to_alnum
 
-influx_dsn_default="influxdb://root:root@localhost:8086/database"
+influx_dsn_default = "influxdb://root:root@localhost:8086/database"
 data_fields = ['config.hardware.numCPU',
                'config.hardware.memoryMB',
                'summary.storage.committed']
