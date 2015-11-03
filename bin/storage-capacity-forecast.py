@@ -9,8 +9,13 @@ from influxdb.influxdb08 import InfluxDBClient
 from pyVsphereInflux import InfluxResult08
 
 influx_dsn_default = "influxdb://root:root@localhost:8086/database"
-data_spec = { '/xioprop..*/': { 'used':     'UD-SSD-Space-In-Use',
-                                'capacity': 'UD-SSD-Space' } 
+data_spec = {
+              '/xioprop..*/': { 'used':     'UD-SSD-Space-In-Use',
+                                'capacity': 'UD-SSD-Space',
+                                'bytes_factor': 1 },
+              '/vnxprop..*/': { 'used':     'Consumed_Capacity__GBs_',
+                                'capacity': 'User_Capacity__GBs_',
+                                'bytes_factor': 2**30 },
             }
 
 def basic_linear_regression(x, y):
@@ -59,6 +64,8 @@ def get_raw_data(args):
                         series, args.range, args.interval)
 
             res = InfluxResult08.query(client, query)
+            for ts in res:
+                ts.tags['bytes_factor'] = data_spec[list_spec]['bytes_factor']
             data_points[series] = res
 
     return data_points
@@ -93,8 +100,11 @@ def main():
     # y = used
     results = {}
     for series in regressions:
-        latest_used = data_points[series][-1].fields['used']
-        latest_cap = data_points[series][-1].fields['capacity']
+        latest_ts = data_points[series][-1]
+        # get latest capacity normalized to bytes
+        bytes_factor = latest_ts.tags['bytes_factor']
+        latest_used = latest_ts.fields['used'] * bytes_factor
+        latest_cap = latest_ts.fields['capacity'] * bytes_factor
         # what's the amount remaining
         latest_remaining = latest_cap - latest_used
         # what's the latest percentage used?
@@ -131,11 +141,18 @@ def main():
     print "Array or Pool, Used, Remaining Capacity, Days Until Full"
     for series in results:
         r_val = results[series]
-        print "%s, %.2f TB, %.2f TB, %d days" % \
+
+        try:
+            td = datetime.timedelta(seconds=r_val['secs_until_full'])
+            remaining_time = "%d days" % td.days
+        except OverflowError:
+            remaining_time = ">1 year"
+
+        print "%s, %.2f TB, %.2f TB, %s" % \
             (series, 
              r_val['latest_used'] / (2**40),
              r_val['latest_remaining'] / (2**40),
-             datetime.timedelta(seconds=r_val['secs_until_full']).days)
+             remaining_time)
 
 
 if __name__ == '__main__':
