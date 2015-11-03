@@ -95,6 +95,8 @@ def main():
     for series in regressions:
         latest_used = data_points[series][-1].fields['used']
         latest_cap = data_points[series][-1].fields['capacity']
+        # what's the amount remaining
+        latest_remaining = latest_cap - latest_used
         # what's the latest percentage used?
         percent_used = latest_used / latest_cap * 100
         # when will used intercept capacity?
@@ -107,6 +109,7 @@ def main():
         results[series] = {}
         results[series]['latest_used'] = latest_used
         results[series]['latest_capacity'] = latest_cap
+        results[series]['latest_remaining'] = latest_remaining
         results[series]['percent_used'] = percent_used
         results[series]['full_ts'] = full_ts
         results[series]['secs_until_full'] = secs_until_full
@@ -125,15 +128,13 @@ def main():
             print
 
     # print results
-    print "Series, Capacity, Used, Percent Used, Date Full, Days Until Full"
+    print "Array or Pool, Used, Remaining Capacity, Days Until Full"
     for series in results:
         r_val = results[series]
-        print "%s, %.2f TB, %.2f TB, %.2f%%, %s, %d" % \
+        print "%s, %.2f TB, %.2f TB, %d days" % \
             (series, 
-             r_val['latest_capacity'] / (2**40),
              r_val['latest_used'] / (2**40),
-             r_val['percent_used'],
-             datetime.date.fromtimestamp(r_val['full_ts']).strftime("%m-%d-%Y"),
+             r_val['latest_remaining'] / (2**40),
              datetime.timedelta(seconds=r_val['secs_until_full']).days)
 
 
