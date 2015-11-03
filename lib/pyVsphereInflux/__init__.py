@@ -28,6 +28,12 @@ class InfluxResult(object):
 
 class InfluxResult08(InfluxResult):
     @staticmethod
+    def query(client, query):
+        """Query InfluxDB using the client and return a list of InfluxResult08
+           objects a la from_query"""
+        return InfluxResult08.from_query(client.query(query))
+
+    @staticmethod
     def from_query(query_res):
         """Create InfluxResult08 objects from the return value of
            InfluxDBClient.query().  Since search result can have multiple
