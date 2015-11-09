@@ -146,7 +146,7 @@ def main():
             td = datetime.timedelta(seconds=r_val['secs_until_full'])
             remaining_time = "%d days" % td.days
         except OverflowError:
-            remaining_time = ">1 year"
+            remaining_time = "> 1 year"
 
         print "%s, %.2f TB, %.2f TB, %s" % \
             (series, 
