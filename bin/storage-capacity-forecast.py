@@ -89,8 +89,11 @@ def main():
     # compute regressions for the purposes of forecasting
     regressions = {}
     for series in data_points:
+        latest_ts = data_points[series][-1]
+        # get latest capacity normalized to bytes
+        bytes_factor = latest_ts.tags['bytes_factor']
         x = [ts.timestamp for ts in data_points[series]]
-        y = [ts.fields['used'] for ts in data_points[series]]
+        y = [ts.fields['used'] * bytes_factor for ts in data_points[series]]
         m, b = basic_linear_regression(x, y)
         regressions[series] = (m, b)
 
@@ -135,6 +138,11 @@ def main():
         for s in regressions:
             print "Series:", s
             print "Regression: y = %.3f * x + %.3f" % regressions[s]
+            print
+        print "Statistics:"
+        for s in results:
+            print "Series:", s
+            print "Results:", results[s]
             print
 
     # print results
