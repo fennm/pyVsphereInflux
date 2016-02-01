@@ -143,7 +143,7 @@ def main():
     print "Top-Level Folder, Storage Growth (GB), Memory Growth (GB), CPU Growth"
     for series in output_keys:
         r_val = results[series]
-        series_str = "/".join(series.split(".")[1:])
+        series_str = ".".join(series.split(".")[1:])
 
         print "%s, %.2f, %.2f, %d" % \
             (series_str, 
