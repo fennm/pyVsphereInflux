@@ -57,8 +57,8 @@ def get_raw_data(args):
                         mean("%s") AS "used", 
                         mean("%s") AS "capacity"
                        FROM %s 
-                       WHERE time > now() - %s 
-                       GROUP BY time(%s) ORDER ASC""" % \
+                       WHERE time > now() - %sd
+                       GROUP BY time(%sd) ORDER ASC""" % \
                        (data_spec[list_spec]['used'], 
                         data_spec[list_spec]['capacity'],
                         series, args.range, args.interval)
@@ -75,10 +75,10 @@ def main():
     parser = argparse.ArgumentParser(description="storage capacity forecasting based on influxdb data")
     parser.add_argument('--influx-dsn', default=influx_dsn_default,
                         help="InfluxDB DSN, eg. %s" % influx_dsn_default)
-    parser.add_argument('--range', default='120d',
-                        help="Range of history to search (default: 120d)")
-    parser.add_argument('--interval', default='1d',
-                        help="Summarization interval for data points (default: 1d)")
+    parser.add_argument('--range', default=120, type=int,
+                        help="Range of history to search in days (default: 120)")
+    parser.add_argument('--interval', default=1, type=int,
+                        help="Summarization interval for data points in days (default: 1)")
     parser.add_argument('--debug', '-d', action='store_true', 
                         help="enable debugging")
 
