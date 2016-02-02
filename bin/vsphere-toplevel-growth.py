@@ -6,6 +6,8 @@ import argparse
 import time
 import datetime
 
+from datetime import datetime as dt
+from datetime import timedelta as td
 from influxdb.influxdb08 import InfluxDBClient
 from pyVsphereInflux import InfluxResult08
 
@@ -44,8 +46,8 @@ def get_raw_data(args):
                         mean("%s") AS "memory_used",
                         mean("%s") AS "cpus_used" 
                        FROM "%s"
-                       WHERE time > now() - %s 
-                       GROUP BY time(%s) ORDER ASC""" % \
+                       WHERE time > now() - %sd
+                       GROUP BY time(%sd) ORDER ASC""" % \
                        (data_spec[list_spec]['storage_used'], 
                         data_spec[list_spec]['memory_used'], 
                         data_spec[list_spec]['cpus_used'], 
@@ -66,10 +68,10 @@ def main():
     parser = argparse.ArgumentParser(description="get growth of top level vSphere folders over time")
     parser.add_argument('--influx-dsn', default=influx_dsn_default,
                         help="InfluxDB DSN, eg. %s" % influx_dsn_default)
-    parser.add_argument('--range', default='120d',
-                        help="Range of history to search (default: 120d)")
-    parser.add_argument('--interval', default='1d',
-                        help="Summarization interval for data points (default: 1d)")
+    parser.add_argument('--range', default=120, type=int,
+                        help="Range of history to search in days (default: 120)")
+    parser.add_argument('--interval', default=1, type=int,
+                        help="Summarization interval for data points in days (default: 1)")
     parser.add_argument('--top', default=10, type=int,
                         help="Report top N results, -1 for all")
     parser.add_argument('--sort', default="storage", 
@@ -82,6 +84,9 @@ def main():
 
     data_points = get_raw_data(args)
     results = {}
+    now = datetime.datetime.now()
+    timerange = td(days=args.range)
+    timeinterval = td(days=args.interval)
 
     for series in data_points:
         if len(data_points[series]) > 0:
@@ -93,18 +98,41 @@ def main():
             memory_bytes_factor = latest_ts.tags['memory_bytes_factor']
 
             # first values
-            storage_first_used = \
-                first_ts.fields['storage_used'] * storage_bytes_factor
-            memory_first_used = \
-                first_ts.fields['memory_used'] * memory_bytes_factor
-            cpus_first_used = first_ts.fields['cpus_used']
+            first_point_time = dt.fromtimestamp(first_ts.timestamp)
+            if args.debug:
+                print first_point_time + timerange, now, series
+            # if the first point plus the range is greater than now,
+            # then the first point must be later than usual, meaning
+            # the object came into existence after the start of the range
+            if first_point_time + timerange > now:
+                storage_first_used = 0
+                memory_first_used = 0
+                cpus_first_used = 0
+            else:
+                storage_first_used = \
+                    first_ts.fields['storage_used'] * storage_bytes_factor
+                memory_first_used = \
+                    first_ts.fields['memory_used'] * memory_bytes_factor
+                cpus_first_used = first_ts.fields['cpus_used']
 
             # latest values
-            storage_latest_used = \
-                latest_ts.fields['storage_used'] * storage_bytes_factor
-            memory_latest_used = \
-                latest_ts.fields['memory_used'] * memory_bytes_factor
-            cpus_latest_used = latest_ts.fields['cpus_used']
+            latest_point_time = dt.fromtimestamp(latest_ts.timestamp)
+            if args.debug:
+                print latest_point_time + timeinterval, now, series
+            # if the last point minus the summarization interval is less than
+            # now, then the last point must have been earlier than usual,
+            # meaning that the object left existence before the end of the
+            # range
+            if latest_point_time + timeinterval < now:
+                storage_latest_used = 0
+                memory_latest_used = 0
+                cpus_latest_used = 0
+            else:
+                storage_latest_used = \
+                    latest_ts.fields['storage_used'] * storage_bytes_factor
+                memory_latest_used = \
+                    latest_ts.fields['memory_used'] * memory_bytes_factor
+                cpus_latest_used = latest_ts.fields['cpus_used']
 
             # growth
             storage_growth = storage_latest_used - storage_first_used
@@ -133,7 +161,7 @@ def main():
             print "Series:", s
             print "Points:", data_points[s]
             print
-        print "Statistics:"
+        print "Growth:"
         for s in results:
             print "Series:", s
             print "Results:", results[s]
