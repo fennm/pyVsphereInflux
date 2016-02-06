@@ -77,6 +77,9 @@ def main():
     parser.add_argument('--sort', default="storage", 
                          choices=["storage", "memory", "cpus"],
                          help="Sort by storage, memory, or cpus, default=storage")
+    parser.add_argument('--metric', default="growth",
+                         choices=["first_used", "latest_used", "growth"],
+                         help="Sort by storage, memory, or cpus, default=storage")
     parser.add_argument('--debug', '-d', action='store_true', 
                         help="enable debugging")
 
@@ -152,7 +155,8 @@ def main():
             results[series]['cpus_growth'] = cpus_growth
 
     output_keys = sorted(results, 
-                         key=lambda x: results[x]['%s_growth' % args.sort], 
+                         key=lambda x: results[x]['%s_%s' % \
+                             (args.sort, args.metric)],
                          reverse=True)[:args.top]
 
     if args.debug:
