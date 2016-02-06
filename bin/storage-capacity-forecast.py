@@ -108,7 +108,7 @@ def main():
         bytes_factor = latest_ts.tags['bytes_factor']
         latest_used = latest_ts.fields['used'] * bytes_factor
         latest_cap = latest_ts.fields['capacity'] * bytes_factor
-        # what's the amount remaining
+        # what's the amount remaining?
         latest_remaining = latest_cap - latest_used
         # what's the latest percentage used?
         percent_used = latest_used / latest_cap * 100
@@ -117,6 +117,12 @@ def main():
         # (y - b) / m
         full_ts = (latest_cap - regressions[series][1]) / regressions[series][0]
         secs_until_full = full_ts - time.time()
+        # when will used hit 90% capacity?
+        # set y = capacity * 0.9, solve for x
+        # (y - b) / m
+        ninety_full_ts = (latest_cap * 0.9 - regressions[series][1]) / \
+                      regressions[series][0]
+        secs_until_ninety_full = ninety_full_ts - time.time()
 
         # stuff the results into a dict
         results[series] = {}
@@ -126,6 +132,8 @@ def main():
         results[series]['percent_used'] = percent_used
         results[series]['full_ts'] = full_ts
         results[series]['secs_until_full'] = secs_until_full
+        results[series]['ninety_full_ts'] = ninety_full_ts
+        results[series]['secs_until_ninety_full'] = secs_until_ninety_full
 
 
     if args.debug:
@@ -146,20 +154,21 @@ def main():
             print
 
     # print results
-    print "Array or Pool, Used, Remaining Capacity, Days Until Full"
+    print "Array or Pool, Used, Remaining Capacity, Days Until 90% Full"
     for series in results:
         r_val = results[series]
 
         try:
-            td = datetime.timedelta(seconds=r_val['secs_until_full'])
+            td = datetime.timedelta(seconds=r_val['secs_until_ninety_full'])
             remaining_time = "%d days" % td.days
         except OverflowError:
             remaining_time = "> 1 year"
 
-        print "%s, %.2f TB, %.2f TB, %s" % \
+        print "%s, %.2f TB, %.2f TB, %d%%, %s" % \
             (series, 
              r_val['latest_used'] / (2**40),
              r_val['latest_remaining'] / (2**40),
+             r_val['percent_used'],
              remaining_time)
 
 
