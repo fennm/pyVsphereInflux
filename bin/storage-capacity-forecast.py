@@ -154,7 +154,7 @@ def main():
             print
 
     # print results
-    print "Array or Pool, Used, Remaining Capacity, Days Until 90% Full"
+    print "Array or Pool, Used, Remaining Capacity, Percent Full, Days Until 90% Full"
     for series in results:
         r_val = results[series]
 
